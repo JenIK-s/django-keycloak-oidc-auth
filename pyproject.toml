@@ -1,0 +1,14 @@
+[project]
+name = "django-keycloak"
+version = "0.1.0"
+description = "Keycloak OIDC authentication for Django"
+requires-python = ">=3.12"
+dependencies = [
+    "Django>=4.0",
+    "django-mozilla-oidc>=2.0.0",
+    "requests>=2.28.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
