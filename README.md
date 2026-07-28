@@ -1,4 +1,4 @@
-# django_keycloak_oidc
+# django-keycloak-oidc-auth
 
 Библиотека для интеграции Django с [Keycloak](https://www.keycloak.org/) через OpenID Connect (OIDC). Пакет предоставляет authentication backend и готовые view для входа, callback и выхода.
 
@@ -24,16 +24,16 @@
 
 ```bash
 git clone <url-репозитория>
-cd django_keycloak_oidc
+cd django_keycloak_oidc_auth
 uv sync
 ```
 
 ### В существующий Django-проект
 
 ```bash
-uv add django_keycloak_oidc
+uv add django-keycloak-oidc-auth
 # или
-pip install django_keycloak_oidc
+pip install django-keycloak-oidc-auth
 ```
 
 ## Настройка Keycloak
@@ -63,34 +63,37 @@ DKA_CLIENT_SECRET = "your-client-secret"
 DKA_SUPER_USER_EMAIL = "admin@example.com"
 ```
 
-### Authentication backend
+### INSTALLED_APPS и backend
 
 ```python
+INSTALLED_APPS = [
+    # ...
+    "django_keycloak_oidc_auth",
+]
+
 AUTHENTICATION_BACKENDS = [
-    "django_keycloak_oidc.backends.KeycloakBackend",
+    "django_keycloak_oidc_auth.backends.KeycloakBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 ```
 
 ### URL-маршруты
 
-Добавьте маршруты в `urls.py` вашего проекта:
+Подключите встроенные маршруты app в `urls.py` вашего проекта:
 
 ```python
-from django.urls import path
-from django_keycloak_oidc.views import (
-    KeycloakLoginView,
-    KeycloakCallbackView,
-    KeycloakLogoutView,
-)
+from django.urls import include, path
 
 urlpatterns = [
-    path("oidc/login/", KeycloakLoginView.as_view(), name="oidc_login"),
-    path("oidc/callback/", KeycloakCallbackView.as_view(), name="oidc_callback"),
-    path("oidc/logout/", KeycloakLogoutView.as_view(), name="oidc_logout"),
-    # ... остальные маршруты
+   path("oidc/", include("django_keycloak_oidc_auth.urls")),
 ]
 ```
+
+Будут доступны маршруты:
+
+- `/oidc/login/`
+- `/oidc/callback/`
+- `/oidc/logout/`
 
 ### Сессии
 
@@ -145,10 +148,12 @@ sequenceDiagram
 ## Структура пакета
 
 ```
-django_keycloak_oidc/
+django_keycloak_oidc_auth/
 ├── __init__.py      # версия пакета
+├── apps.py          # AppConfig для Django
 ├── backends.py      # KeycloakBackend
 ├── config.py        # OIDC endpoints из Django settings
+├── urls.py          # встроенные URL-маршруты app
 └── views.py         # login, callback, logout views
 ```
 

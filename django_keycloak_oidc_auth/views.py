@@ -1,12 +1,25 @@
 """
-Keycloak OIDC views для логина/логаута
+Keycloak OIDC views для логина/логаута.
 """
 import uuid
+from urllib.parse import urlencode
+
 import requests
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.views import View
-from .config import *
+
+from .config import (
+    OIDC_OP_AUTHORIZATION_ENDPOINT,
+    OIDC_OP_TOKEN_ENDPOINT,
+    OIDC_RP_CLIENT_ID,
+    OIDC_RP_CLIENT_SECRET,
+)
+
+
+def build_callback_uri(request) -> str:
+    return request.build_absolute_uri(reverse("django_keycloak_oidc_auth:callback"))
 
 
 class KeycloakLoginView(View):
@@ -18,15 +31,14 @@ class KeycloakLoginView(View):
         next_url = request.GET.get("next") or "/"
         request.session["login_next"] = next_url
 
-        redirect_uri = request.build_absolute_uri("/oidc/callback/")
-        auth_url = (
-            f"{OIDC_OP_AUTHORIZATION_ENDPOINT}?"
-            f"client_id={OIDC_RP_CLIENT_ID}&"
-            f"redirect_uri={redirect_uri}&"
-            f"response_type=code&"
-            f"scope=openid+profile+email&"
-            f"state={state}"
-        )
+        redirect_uri = build_callback_uri(request)
+        auth_url = f"{OIDC_OP_AUTHORIZATION_ENDPOINT}?{urlencode({
+            'client_id': OIDC_RP_CLIENT_ID,
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'scope': 'openid profile email',
+            'state': state,
+        })}"
 
         return HttpResponseRedirect(auth_url)
 
@@ -43,7 +55,7 @@ class KeycloakCallbackView(View):
 
         try:
             # Обменять код на токен
-            redirect_uri = request.build_absolute_uri("/oidc/callback/")
+            redirect_uri = build_callback_uri(request)
             token_response = requests.post(
                 OIDC_OP_TOKEN_ENDPOINT,
                 data={
@@ -65,8 +77,13 @@ class KeycloakCallbackView(View):
             )
 
             if user:
-                login(request, user, backend="django_keycloak.backends.KeycloakBackend")
+                login(
+                    request,
+                    user,
+                    backend="django_keycloak_oidc_auth.backends.KeycloakBackend",
+                )
                 request.session["oidc_refresh_token"] = tokens.get("refresh_token")
+                request.session.pop("oidc_state", None)
                 next_url = request.session.pop("login_next", "/")
                 return HttpResponseRedirect(next_url)
 
