@@ -6,7 +6,7 @@ import requests
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.views import View
-from django.conf import settings
+from .config import *
 
 
 class KeycloakLoginView(View):
@@ -15,11 +15,13 @@ class KeycloakLoginView(View):
     def get(self, request):
         state = str(uuid.uuid4())
         request.session["oidc_state"] = state
+        next_url = request.GET.get("next") or "/"
+        request.session["login_next"] = next_url
 
         redirect_uri = request.build_absolute_uri("/oidc/callback/")
         auth_url = (
-            f"{settings.OIDC_OP_AUTHORIZATION_ENDPOINT}?"
-            f"client_id={settings.OIDC_RP_CLIENT_ID}&"
+            f"{OIDC_OP_AUTHORIZATION_ENDPOINT}?"
+            f"client_id={OIDC_RP_CLIENT_ID}&"
             f"redirect_uri={redirect_uri}&"
             f"response_type=code&"
             f"scope=openid+profile+email&"
@@ -43,11 +45,11 @@ class KeycloakCallbackView(View):
             # Обменять код на токен
             redirect_uri = request.build_absolute_uri("/oidc/callback/")
             token_response = requests.post(
-                settings.OIDC_OP_TOKEN_ENDPOINT,
+                OIDC_OP_TOKEN_ENDPOINT,
                 data={
                     "grant_type": "authorization_code",
-                    "client_id": settings.OIDC_RP_CLIENT_ID,
-                    "client_secret": settings.OIDC_RP_CLIENT_SECRET,
+                    "client_id": OIDC_RP_CLIENT_ID,
+                    "client_secret": OIDC_RP_CLIENT_SECRET,
                     "code": code,
                     "redirect_uri": redirect_uri,
                 },
@@ -80,3 +82,6 @@ class KeycloakLogoutView(View):
     def get(self, request):
         logout(request)
         return HttpResponseRedirect("/")
+
+    def post(self, request):
+        return self.get(request)
