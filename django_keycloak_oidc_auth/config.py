@@ -2,6 +2,7 @@ from django.conf import settings
 
 OIDC_RP_CLIENT_ID = settings.DKA_CLIENT_ID
 OIDC_RP_CLIENT_SECRET = settings.DKA_CLIENT_SECRET
+OIDC_VERIFY_SSL = getattr(settings, "OIDC_VERIFY_SSL", True)
 
 KC_BASE_URL = f"https://{settings.DKA_BASE_URL}/realms/{settings.DKA_REALM}/protocol/openid-connect"
 

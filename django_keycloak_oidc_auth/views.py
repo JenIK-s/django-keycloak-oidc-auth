@@ -15,6 +15,7 @@ from .config import (
     OIDC_OP_TOKEN_ENDPOINT,
     OIDC_RP_CLIENT_ID,
     OIDC_RP_CLIENT_SECRET,
+    OIDC_VERIFY_SSL,
 )
 
 
@@ -66,6 +67,7 @@ class KeycloakCallbackView(View):
                     "redirect_uri": redirect_uri,
                 },
                 timeout=10,
+                verify=OIDC_VERIFY_SSL,
             )
             token_response.raise_for_status()
             tokens = token_response.json()

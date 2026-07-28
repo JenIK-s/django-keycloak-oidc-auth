@@ -12,7 +12,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.http import HttpRequest
 
-from .config import OIDC_OP_USER_ENDPOINT
+from .config import OIDC_OP_USER_ENDPOINT, OIDC_VERIFY_SSL
 
 
 class KeycloakBackend(ModelBackend):
@@ -67,6 +67,7 @@ class KeycloakBackend(ModelBackend):
                 OIDC_OP_USER_ENDPOINT,
                 headers={"Authorization": f"Bearer {access_token}"},
                 timeout=10,
+                verify=OIDC_VERIFY_SSL,
             )
             response.raise_for_status()
             claims = response.json()
