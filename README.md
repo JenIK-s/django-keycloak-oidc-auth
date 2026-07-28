@@ -57,7 +57,7 @@ DKA_BASE_URL = "keycloak.example.com"   # хост без https://
 DKA_REALM = "my-realm"
 DKA_CLIENT_ID = "django-app"
 DKA_CLIENT_SECRET = "your-client-secret"
-OIDC_VERIFY_SSL = True
+DKA_VERIFY_SSL = True
 
 # Необязательно: email пользователя, которому при первом входе
 # выдаются is_staff и is_superuser
@@ -130,13 +130,13 @@ sequenceDiagram
 
 ## Справочник настроек
 
-| Параметр | Обязательный | Описание |
-|---|---|---|
-| `DKA_BASE_URL` | да | Хост Keycloak (без схемы), например `keycloak.example.com` |
-| `DKA_REALM` | да | Имя realm |
-| `DKA_CLIENT_ID` | да | Client ID OIDC-клиента |
-| `DKA_CLIENT_SECRET` | да | Client secret OIDC-клиента |
-| `OIDC_VERIFY_SSL` | нет | Проверять SSL-сертификат при запросах к Keycloak. По умолчанию `True` |
+| Параметр               | Обязательный | Описание |
+|------------------------|---|---|
+| `DKA_BASE_URL`         | да | Хост Keycloak (без схемы), например `keycloak.example.com` |
+| `DKA_REALM`            | да | Имя realm |
+| `DKA_CLIENT_ID`        | да | Client ID OIDC-клиента |
+| `DKA_CLIENT_SECRET`    | да | Client secret OIDC-клиента |
+| `DKA_VERIFY_SSL`       | нет | Проверять SSL-сертификат при запросах к Keycloak. По умолчанию `True` |
 | `DKA_SUPER_USER_EMAIL` | нет | Email, которому при создании выдаются `is_staff` и `is_superuser` |
 
 На основе этих параметров формируются OIDC endpoints:
