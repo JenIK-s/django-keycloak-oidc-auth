@@ -3,7 +3,7 @@ name = "django-keycloak-oidc-auth"
 version = "0.1.1"
 description = "Keycloak OIDC authentication for Django"
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
   { name = "Jeniks" }
